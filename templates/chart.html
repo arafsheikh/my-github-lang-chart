@@ -1,0 +1,13 @@
+<!DOCTYPE HTML>
+<HTML>
+<HEAD>
+<TITLE>My Github language chart</TITLE>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script src="http://code.highcharts.com/highcharts.js"></script>
+<script src="{{ url_for('static', filename='js/chartkick.js') }}"></script>
+</HEAD>
+<BODY>
+	<H1>Language chart for <a href={{"https://github.com/" ~ user}}>{{ user }}</a>:</H1>
+	{% pie_chart data with id='lang-chart' height='400px' %}
+</BODY>
+</HTML>
