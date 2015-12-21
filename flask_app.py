@@ -1,5 +1,7 @@
-from flask import Flask, render_template, request, Blueprint
+""" Main """
+
 from urllib import urlopen
+from flask import Flask, render_template, request, Blueprint
 from bs4 import BeautifulSoup
 import chartkick
 
@@ -8,37 +10,45 @@ ck = Blueprint('ck_page', __name__, static_folder=chartkick.js(), static_url_pat
 app.register_blueprint(ck, url_prefix='/ck')
 app.jinja_env.add_extension("chartkick.ext.charts")
 
+
 def fetch(username):
-	lang_dict = {}
-	url = "https://github.com/" + username + "?tab=repositories"
-	resp = urlopen(url)
+    """
+    Function to fetch the user's language from Github.
+    """
+    lang_dict = {}
+    url = "https://github.com/" + username + "?tab=repositories"
+    resp = urlopen(url)
 
-	if resp.getcode() == 404:
-		return "Username doesn't exist"
-	elif resp.getcode() == 200:
-		soup = BeautifulSoup(resp, "lxml")
+    if resp.getcode() == 404:
+        return "Username doesn't exist"
+    elif resp.getcode() == 200:
+        soup = BeautifulSoup(resp, "lxml")
 
-		for repo_details in soup.find_all(class_='repo-list-stats'):
-			repo_lang = str(repo_details.contents[0].strip())
+        for repo_details in soup.find_all(class_='repo-list-stats'):
+            repo_lang = str(repo_details.contents[0].strip())
 
-			if repo_lang == "":
-				repo_lang = "Other"
+            if repo_lang == "":
+                repo_lang = "Other"
 
-			if repo_lang in lang_dict:
-				lang_dict[repo_lang] += 1
-			else:
-				lang_dict[repo_lang] = 1
+            if repo_lang in lang_dict:
+                lang_dict[repo_lang] += 1
+            else:
+                lang_dict[repo_lang] = 1
 
-		#return lang_dict
-		return render_template("chart.html", user=username, data=lang_dict)
-	else:
-		return "There was an error"
+        # return lang_dict
+        return render_template("chart.html", user=username, data=lang_dict)
+    else:
+        return "There was an error. HTTP response code: " + str(resp.getcode())
+
 
 @app.route("/", methods=["GET", "POST"])
 def index():
+    """
+    This function serves the GET and POST request for the index.html
+    """
     if request.method == "POST":
-    	return fetch(request.form["username"])
+        return fetch(request.form["username"])
     return render_template("index.html")
 
 if __name__ == "__main__":
-	app.run(debug=True)
+    app.run(debug=True)
